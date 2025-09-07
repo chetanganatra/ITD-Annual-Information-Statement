@@ -1,4 +1,4 @@
-# Decrypt Income Tax AIS JSON and convert to Excel!
+# Decrypt Income Tax AIS .json and convert to Excel!
 
 Scripts to automate extraction of Indian Income Tax - Annual Info Statement (AIS) encrypted JSON into Excel worksheets for quick reference and analysis!
 
