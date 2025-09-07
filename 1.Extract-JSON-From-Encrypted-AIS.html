@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Income Tax - Annual Information Statement (AIS) - JSON Decryption Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        textarea {
+            resize: vertical;
+            height: 80px;
+            font-family: monospace;
+        }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 15px 0;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .success {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h3>Indian Income Tax - Annual Information Statement (AIS) - JSON Decryption Tool</h3>
+    
+    <label for="encryptedString">Encrypted String:</label>
+    <textarea id="encryptedString" placeholder="Enter the encrypted string (IV + Salt in hex, ciphertext in hex or Base64)"></textarea>
+    
+    <label for="password">Password:</label>
+    <input type="password" id="password" placeholder="Enter the decryption password">
+    
+    <button onclick="decryptData()">Decrypt</button>
+    
+    <label for="decryptedResult">Decrypted Result:</label>
+    <textarea id="decryptedResult" readonly placeholder="Decrypted text will appear here..."></textarea>
+    
+    <div id="errorMessage" class="error"></div>
+    <div id="successMessage" class="success"></div>
+    <h5 style="color:white">AppInSource - Chetan Ganatra - 07-Sept-25 | Only for reference and educational purpose | Use at your own risk!</h5>
+
+    <script>
+        function getDecryptedData(encryptedString, password) {
+            try {
+                // Extract IV (first 32 hex characters)
+                var iv = CryptoJS.enc.Hex.parse(encryptedString.substr(0, 32));
+                
+                // Extract salt (next 32 hex characters) 
+                var salt = CryptoJS.enc.Hex.parse(encryptedString.substr(32, 32));
+                
+                // Extract ciphertext (remaining characters)
+                var ciphertextPart = encryptedString.substring(64);
+                
+                // Check if ciphertext is Base64 or Hex format
+                var ciphertext;
+                var base64Pattern = /^[A-Za-z0-9+/]+=*$/;
+                var hexPattern = /^[0-9a-fA-F]+$/;
+                
+                if (base64Pattern.test(ciphertextPart)) {
+                    // Ciphertext is Base64 encoded - use directly
+                    ciphertext = ciphertextPart;
+                } else if (hexPattern.test(ciphertextPart)) {
+                    // Ciphertext is Hex encoded, convert to Base64
+                    var hexBytes = CryptoJS.enc.Hex.parse(ciphertextPart);
+                    ciphertext = CryptoJS.enc.Base64.stringify(hexBytes);
+                } else {
+                    throw new Error('Ciphertext must be either valid Base64 or hexadecimal format');
+                }
+                
+                // Derive key using PBKDF2
+                var key = CryptoJS.PBKDF2(password, salt, {
+                    keySize: 8, // 256 bits (8 * 32 bits)
+                    iterations: 1000,
+                    hasher: CryptoJS.algo.SHA256
+                });
+                
+                // Decrypt using AES-CBC
+                var decrypted = CryptoJS.AES.decrypt(ciphertext, key, {
+                    iv: iv,
+                    padding: CryptoJS.pad.Pkcs7,
+                    mode: CryptoJS.mode.CBC
+                });
+                
+                // Check if decryption was successful (non-empty result)
+                if (decrypted.sigBytes === 0) {
+                    throw new Error('Decryption failed - likely wrong password or parameters');
+                }
+                
+                // Try to convert to UTF-8 string
+                var result = decrypted.toString(CryptoJS.enc.Utf8);
+                
+                // If UTF-8 conversion fails or results in empty string, it might be binary data
+                if (!result) {
+                    // Try as binary data - convert to hex for display
+                    var hexResult = decrypted.toString(CryptoJS.enc.Hex);
+                    if (hexResult) {
+                        throw new Error('Decryption successful but data appears to be binary (not text). First 100 hex chars: ' + hexResult.substring(0, 100) + '...');
+                    } else {
+                        throw new Error('Decryption failed - empty result');
+                    }
+                }
+                
+                return result;
+            } catch (error) {
+                throw new Error('Decryption failed: ' + error.message);
+            }
+        }
+        
+        function decryptData() {
+            // Clear previous messages
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+            
+            // Get input values
+            var encryptedString = document.getElementById('encryptedString').value.trim();
+            var password = document.getElementById('password').value;
+            var resultField = document.getElementById('decryptedResult');
+            
+            // Validate inputs
+            if (!encryptedString) {
+                showError('Please enter an encrypted string');
+                return;
+            }
+            
+            if (!password) {
+                showError('Please enter a password');
+                return;
+            }
+            
+            // Check if encrypted string has minimum required length (64 hex chars for IV + salt)
+            if (encryptedString.length < 64) {
+                showError('Encrypted string is too short. It should contain at least 64 characters.');
+                return;
+            }
+            
+            // Debug: Show string length and first/last parts
+            console.log('Total length:', encryptedString.length);
+            console.log('First 64 chars:', encryptedString.substr(0, 64));
+            console.log('Ciphertext length:', encryptedString.substring(64).length);
+            console.log('Last 50 chars:', encryptedString.slice(-50));
+            
+            // Validate format (first 64 chars should be hex)
+            var ivAndSalt = encryptedString.substr(0, 64);
+            var hexPattern = /^[0-9a-fA-F]+$/;
+            
+            if (!hexPattern.test(ivAndSalt)) {
+                showError('First 64 characters (IV + Salt) must be hexadecimal (0-9, a-f, A-F)');
+                return;
+            }
+            
+            try {
+                var decryptedText = getDecryptedData(encryptedString, password);
+                
+                if (!decryptedText) {
+                    showError('Decryption resulted in empty text. Please check your encrypted string and password.');
+                    return;
+                }
+                
+                resultField.value = decryptedText;
+                showSuccess('Decryption successful!');
+                
+            } catch (error) {
+                // Add debugging info
+                var debugInfo = '';
+                var ivAndSalt = encryptedString.substr(0, 64);
+                var ciphertextPart = encryptedString.substring(64);
+                var base64Pattern = /^[A-Za-z0-9+/]+=*$/;
+                var hexPattern = /^[0-9a-fA-F]+$/;
+                
+                if (base64Pattern.test(ciphertextPart)) {
+                    debugInfo = ' (Detected Base64 ciphertext, length: ' + ciphertextPart.length + ')';
+                } else if (hexPattern.test(ciphertextPart)) {
+                    debugInfo = ' (Detected Hex ciphertext, length: ' + ciphertextPart.length + ')';
+                } else {
+                    debugInfo = ' (Unknown ciphertext format)';
+                }
+                
+                showError(error.message + debugInfo + '. This usually means wrong password or incorrect format.');
+                resultField.value = '';
+            }
+        }
+        
+        function showError(message) {
+            var errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function showSuccess(message) {
+            var successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
