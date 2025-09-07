@@ -22,15 +22,12 @@ python 2.Convert-AIS-Clean-Json-to-Excel.py clean.json
 
 ```
 
----
 
 ## Disclaimers
 
 - Scripts are provided **as-is** with no warranties.  
 - Use them at your own risk; the author is not responsible for any issues or data loss.  
 - Adapt the code to fit your environment before production use.  
-
----
 
 ## License
 This project is licensed under the [MIT License](LICENSE).  
