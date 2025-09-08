@@ -27,7 +27,7 @@ Python and HTML scripts to decrypt the Income Tax Department's Annual Informatio
 - Scripts are provided **as-is** with no warranties.  
 - Use them at your own risk; the author is not responsible for any issues or data loss.  
 - Adapt the code to fit your environment before production use.
-- “Do not upload or share your decrypted AIS JSON publicly. Keep your tax data private.”
+- `Do not upload or share your decrypted AIS JSON publicly. Keep your tax data private.`
 
 ## License
 This project is licensed under the [MIT License](LICENSE).  
