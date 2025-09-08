@@ -1,33 +1,31 @@
-# Decrypt Income Tax AIS .json and convert to Excel!
+# ITD AIS JSON Decrypt & Excel Converter
 
-Scripts to automate extraction of Indian Income Tax - Annual Info Statement (AIS) encrypted JSON into Excel worksheets for quick reference and analysis!
+Python and HTML scripts to decrypt the Income Tax Department's Annual Information Statement (AIS) JSON and convert it into Excel for easier analysis!
 
 ---
 
-## Step 1: Download encrypted JSON
+1. **Download Encrypted AIS JSON**  
+   - Login to the [Income Tax e-Filing portal](https://eportal.incometax.gov.in/)  
+   - Download `Annual Information Statement (AIS) - JSON (for AIS Utility)`
 
-Login to Indian Income Tax eFiling portal and download 'Annual Information Statement (AIS) - JSON (for AIS Utility)'
+2. **Decrypt JSON**  
+   - Open `1.Extract-JSON-From-Encrypted-AIS.html` in a browser  
+   - Upload the encrypted file & enter your password (PAN in lowercase + DOB in ddmmyyyy format)  
+   - Save the decrypted JSON to a new file (e.g., `clean.json`) 
 
-## Step 2: Decrypt JSON 
-
-Open '1.Extract-JSON-From-Encrypted-AIS.html' and copy paste the encrypted file and provide valid password. Click Decrypt. Copy paste the decrypted content into a separate file.
-
-## Step 3: Convert to Excel
-
-Execute the python script '2.Convert-AIS-Clean-Json-to-Excel.py' by passing the above clean json as parameter. Once the script is executed it would create an Excel file with same name as that of the clean json file.
-
-```
-
-python 2.Convert-AIS-Clean-Json-to-Excel.py clean.json
-
-```
-
+3. **Convert to Excel**  
+   Run the Python script:
+   ```bash
+   python 2.Convert-AIS-Clean-Json-to-Excel.py clean.json
+   ```
+   This will generate clean.xlsx in the same folder.
 
 ## Disclaimers
 
 - Scripts are provided **as-is** with no warranties.  
 - Use them at your own risk; the author is not responsible for any issues or data loss.  
-- Adapt the code to fit your environment before production use.  
+- Adapt the code to fit your environment before production use.
+- “Do not upload or share your decrypted AIS JSON publicly. Keep your tax data private.”
 
 ## License
 This project is licensed under the [MIT License](LICENSE).  
