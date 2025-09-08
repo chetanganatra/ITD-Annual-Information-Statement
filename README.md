@@ -13,9 +13,11 @@ Python and HTML scripts to decrypt the Income Tax Department's Annual Informatio
    - Upload the encrypted file & enter your password (PAN in lowercase + DOB in ddmmyyyy format)  
    - Save the decrypted JSON to a new file (e.g., `clean.json`) 
 
-3. **Convert to Excel**  
+3. **Convert to Excel**
+   
    Run the Python script:
    ```bash
+   pip install -r requirements.txt
    python 2.Convert-AIS-Clean-Json-to-Excel.py clean.json
    ```
    This will generate clean.xlsx in the same folder.
